@@ -48,51 +48,70 @@
           done = true;
         }
         if(state == 1){
-        // call the function every 250 milisecond.
-        setInterval(displTime,250);  // PUT THIS STATEMENT JUST AFTER THE PLAYER HAS BEEN CREATED. 
-      }
+          // call the function every 250 milisecond.
+          setInterval(displTime,250);  // PUT THIS STATEMENT JUST AFTER THE PLAYER HAS BEEN CREATED. 
+        }
       }
 
       
       function displTime() {
         
-      var mind = player.getCurrentTime();   // returns elapsed time in seconds 
-      var m = Math.floor(mind / 60);
-      var secd = mind % 60;
-      var s = Math.ceil(secd)
+        var mind = player.getCurrentTime();   // returns elapsed time in seconds 
+        var m = Math.floor(mind / 60);
+        var secd = mind % 60;
+        var s = Math.ceil(secd)
 
-      var dur = player.getDuration();
+        var dur = player.getDuration();       // returns duration time in seconds
 
-      var dm = Math.floor(dur / 60);
-      var dsecd = dur % 60;
-      var ds = Math.ceil(dsecd)
+        var dm = Math.floor(dur / 60);
+        var dsecd = dur % 60;
+        var ds = Math.ceil(dsecd)
 
-      var playbackPercent = mind/dur;
-      var sliderValue = playbackPercent * 100;
-      var state = player.getPlayerState();
+        var playbackPercent = mind/dur;
+        var sliderValue = playbackPercent * 100;
+        var state = player.getPlayerState();
 
-      $("#time").html("Current: " + m + ":" + n(s) + " | Duration: " + dm + ":" + n(ds) + " | PlayerState: " + state + " | Slider Value: " + sliderValue );  // Using the JQUERY library to write to body
-      $( "#slider" ).slider({ 
-        range: "min",
-        min:0,
-        value: sliderValue });
-      //$('#slider').next().find('ui-slider-handle').hide();
-      
-      // adds a 0 to the seconds when the time is less than 9 seconds
-      function n(n){
-        return n > 9 ? "" + n: "0" + n;
-      }
+        $("#time").html("Current: " + m + ":" + n(s) + " | Duration: " + dm + ":" + n(ds) + " | PlayerState: " + state + " | Volume: " + player.getVolume() + " | Slider Value: " + sliderValue);  // Using the JQUERY library to write to body
+        $( "#slider_timeline" ).slider({ 
+          range: "min",
+          min:0,
+          value: sliderValue });
+        
+        
+        // adds a 0 to the seconds when the time is less than 9 seconds
+        function n(n){
+          return n > 9 ? "" + n: "0" + n;
+        }
+
+        // set player value
         if(state == 1){
           $("#player_control_button").removeClass('ui-icon-play').addClass('ui-icon-pause').click(function(){player.pauseVideo();});
         }else if(state == 2){
           $("#player_control_button").removeClass('ui-icon-pause').addClass('ui-icon-play').click(function(){player.playVideo();});
         }else if(state == 0){
           $("#player_control_button").removeClass('ui-icon-pause').addClass('ui-icon-arrowrefresh-1-e').click(function(){player.playVideo();});
+        }else{
+          var donothing;
+        }
+        
         }
       
-      }
-
-      
+      //var current_volume = player.getVolume();
+      // Volume Slider
+      $(function() {
+        $( "#slider_vertical" ).slider({
+          orientation: "vertical",
+          range: "min",
+          min: 0,
+          max: 100,
+          value: 50,
+          slide: function( event, ui ) {
+            $( "#volume" ).val( ui.value );
+            player.setVolume(ui.value);
+          }
+        });
+        $(function(){( "#volume" ).val( $( "#slider-vertical" ).slider( "value" ) )});
+      });
     </script>
 
   <ul id="icons" class="ui-widget ui-helper-clearfix">
@@ -100,9 +119,20 @@
 	  <li class="ui-state-default ui-corner-all"><span id="player_control_button" class="ui-icon ui-icon-play"></span></li>
   </ul>
 
-  <a href="javascript:void(0);" onclick="player.mute();">Mute</a> | <a href="javascript:void(0);" onclick="player.unMute();">Unmute</a> | <input id="vol" type="text" size="2" onblur="player.setVolume(document.getElementById('vol').value)"><br />
-  <div id="slider" style="width:375px;"></div> 
+  <a href="javascript:void(0);" onclick="player.mute();">Mute</a> | <a href="javascript:void(0);" onclick="player.unMute();">Unmute</a> | <input id="volume" type="text" size="2" onload="player.setVolume(document.getElementById('volume').value)" onchange="player.setVolume(document.getElementById('volume').value)">
+
+
+
+  <div id="slider_vertical" style="height:50px;" onload="player.setVolume(document.getElementById('volume').value)" onchange="player.setVolume(document.getElementById('volume').value)"></div><br />
+
+
+
+  <div id="slider_timeline" style="width:400px;"></div> 
   <div id="time"></div>
 
+
+  <script>
+    
+  </script>
 </body>
 </html>
