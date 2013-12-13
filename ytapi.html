@@ -23,8 +23,8 @@
       var player;
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-          height: '211',
-          width: '375',
+          height: '0',
+          width: '0',
           videoId: 'TINZIfp-xaI',
           events: {
             'onReady': onPlayerReady,
@@ -48,6 +48,22 @@
           done = true;
         }
         if(state == 1){
+          var current_volume = player.getVolume();
+          // Volume Slider
+          $(function() {
+            $( "#slider_vertical" ).slider({
+              orientation: "vertical",
+              range: "min",
+              min: 0,
+              max: 100,
+              value: 50,
+              slide: function( event, ui ) {
+                $( "#volume" ).val( ui.value );
+                player.setVolume(ui.value);
+              }
+            });
+          });
+          $('#slider_vertical').find(".ui-slider-range").css('height', current_volume+'%');
           // call the function every 250 milisecond.
           setInterval(displTime,250);  // PUT THIS STATEMENT JUST AFTER THE PLAYER HAS BEEN CREATED. 
         }
@@ -71,7 +87,9 @@
         var sliderValue = playbackPercent * 100;
         var state = player.getPlayerState();
 
-        $("#time").html("Current: " + m + ":" + n(s) + " | Duration: " + dm + ":" + n(ds) + " | PlayerState: " + state + " | Volume: " + player.getVolume() + " | Slider Value: " + sliderValue);  // Using the JQUERY library to write to body
+        var getVolume = player.getVolume();
+
+        $("#time").html("Current: " + m + ":" + n(s) + " | Duration: " + dm + ":" + n(ds) + " | PlayerState: " + state + " | Volume: " + getVolume + " | Slider Value: " + sliderValue);  // Using the JQUERY library to write to body
         $( "#slider_timeline" ).slider({ 
           range: "min",
           min:0,
@@ -93,30 +111,22 @@
         }else{
           var donothing;
         }
-        
+
+        // set play mute icons
+        if(getVolume != 0){
+          $('#player_mute_button').removeClass('ui-icon-volume-off').addClass('ui-icon-volume-on').click(function(){player.mute();});
+        }else{
+          $('#player_mute_button').removeClass('ui-icon-volume-on').addClass('ui-icon-volume-off').click(function(){player.unMute();});
         }
+      }
       
-      //var current_volume = player.getVolume();
-      // Volume Slider
-      $(function() {
-        $( "#slider_vertical" ).slider({
-          orientation: "vertical",
-          range: "min",
-          min: 0,
-          max: 100,
-          value: 50,
-          slide: function( event, ui ) {
-            $( "#volume" ).val( ui.value );
-            player.setVolume(ui.value);
-          }
-        });
-        $(function(){( "#volume" ).val( $( "#slider-vertical" ).slider( "value" ) )});
-      });
+      
+      
     </script>
 
   <ul id="icons" class="ui-widget ui-helper-clearfix">
-    <li class="ui-state-default ui-corner-all"><span id="player_control_button_seek_first" class="ui-icon ui-icon-seek-first"></span></li>
 	  <li class="ui-state-default ui-corner-all"><span id="player_control_button" class="ui-icon ui-icon-play"></span></li>
+    <li class="ui-state-default ui-corner-all"><span id="player_mute_button" class="ui-icon ui-icon-volume-on"></span></li>
   </ul>
 
   <a href="javascript:void(0);" onclick="player.mute();">Mute</a> | <a href="javascript:void(0);" onclick="player.unMute();">Unmute</a> | <input id="volume" type="text" size="2" onload="player.setVolume(document.getElementById('volume').value)" onchange="player.setVolume(document.getElementById('volume').value)">
