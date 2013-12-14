@@ -1,0 +1,293 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jquery-ui-1.10.3.custom.js"></script>
+    <link href="css/dot-luv/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
+    <link href="css/main.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    
+    <div id="player"></div>
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      var player2
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '0',
+          width: '0',
+          videoId: 'TINZIfp-xaI',
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+        player2 = new YT.Player('player2', {
+          height: '0',
+          width: '0',
+          videoId: 'zloMeuJjjGg',
+          events: {
+            'onReady': onPlayerReady2,
+            'onStateChange': onPlayerStateChange2
+          }
+        });
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          var state = player.getPlayerState();
+          done = true;
+        }
+        if(state == 1){
+          var current_volume = player.getVolume();
+          // Volume Slider
+          $(function() {
+            $( "#slider_vertical" ).slider({
+              orientation: "vertical",
+              range: "min",
+              min: 0,
+              max: 100,
+              value: 50,
+              slide: function( event, ui ) {
+                $( "#volume" ).val( ui.value );
+                player.setVolume(ui.value);
+              }
+            });
+          });
+          $('#slider_vertical').find(".ui-slider-range").css('height', current_volume+'%');
+          // call the function every 250 milisecond.
+          setInterval(displTime,250);  // PUT THIS STATEMENT JUST AFTER THE PLAYER HAS BEEN CREATED. 
+        }
+      }
+
+      
+      function displTime() {
+        
+        var mind = player.getCurrentTime();   // returns elapsed time in seconds 
+        var m = Math.floor(mind / 60);
+        var secd = mind % 60;
+        var s = Math.ceil(secd)
+
+        var dur = player.getDuration();       // returns duration time in seconds
+
+        var dm = Math.floor(dur / 60);
+        var dsecd = dur % 60;
+        var ds = Math.ceil(dsecd)
+
+        var playbackPercent = mind/dur;
+        var sliderValue = playbackPercent * 100;
+        var state = player.getPlayerState();
+
+        var getVolume = player.getVolume();
+
+        $("#time").html("Current: " + m + ":" + n(s) + " | Duration: " + dm + ":" + n(ds) + " | PlayerState: " + state + " | Volume: " + getVolume + " | Slider Value: " + sliderValue);  // Using the JQUERY library to write to body
+        $( "#slider_timeline" ).slider({ 
+          range: "min",
+          min:0,
+          value: sliderValue });
+        
+        
+        // adds a 0 to the seconds when the time is less than 9 seconds
+        function n(n){
+          return n > 9 ? "" + n: "0" + n;
+        }
+
+        // set player value
+        if(state == 1){
+          $("#player_control_button").removeClass('ui-icon-play').addClass('ui-icon-pause').click(function(){player.pauseVideo();});
+        }else if(state == 2){
+          $("#player_control_button").removeClass('ui-icon-pause').addClass('ui-icon-play').click(function(){player.playVideo();});
+        }else if(state == 0){
+          $("#player_control_button").removeClass('ui-icon-pause').addClass('ui-icon-arrowrefresh-1-e').click(function(){player.playVideo();});
+        }else{
+          var donothing;
+        }
+
+        // set play mute icons
+        if(getVolume != 0){
+          $('#player_mute_button').removeClass('ui-icon-volume-off').addClass('ui-icon-volume-on').click(function(){player.mute();});
+        }else{
+          $('#player_mute_button').removeClass('ui-icon-volume-on').addClass('ui-icon-volume-off').click(function(){player.unMute();});
+        }
+      }
+      
+      
+      
+    </script>
+
+  <ul id="icons" class="ui-widget ui-helper-clearfix">
+	  <li class="ui-state-default ui-corner-all"><span id="player_control_button" class="ui-icon ui-icon-play"></span></li>
+    <li class="ui-state-default ui-corner-all"><span id="player_mute_button" class="ui-icon ui-icon-volume-on"></span></li>
+  </ul>
+
+  <a href="javascript:void(0);" onclick="player.mute();">Mute</a> | <a href="javascript:void(0);" onclick="player.unMute();">Unmute</a> | <input id="volume" type="text" size="2" onload="player.setVolume(document.getElementById('volume').value)" onchange="player.setVolume(document.getElementById('volume').value)">
+
+
+
+  <div id="slider_vertical" style="height:50px;" onload="player.setVolume(document.getElementById('volume').value)" onchange="player.setVolume(document.getElementById('volume').value)"></div><br />
+
+
+
+  <div id="slider_timeline" style="width:400px;"></div> 
+  <div id="time"></div>
+
+
+
+
+
+
+
+
+
+
+<div id="player2"></div>
+  <ul id="icons" class="ui-widget ui-helper-clearfix">
+    <li class="ui-state-default ui-corner-all"><span id="player2_control_button" class="ui-icon ui-icon-play"></span></li>
+    <li class="ui-state-default ui-corner-all"><span id="player2_mute_button" class="ui-icon ui-icon-volume-on"></span></li>
+  </ul>
+   <a href="javascript:void(0);" onclick="player2.mute();">Mute</a> | <a href="javascript:void(0);" onclick="player2.unMute();">Unmute</a> | <input id="volume2" type="text" size="2" onload="player2.setVolume(document.getElementById('volume2').value)" onchange="player2.setVolume(document.getElementById('volume2').value)">
+
+
+
+  <div id="slider_vertical2" style="height:50px;" onload="player2.setVolume(document.getElementById('volume2').value)" onchange="player2.setVolume(document.getElementById('volume2').value)"></div><br />
+
+
+
+  <div id="slider_timeline2" style="width:400px;"></div> 
+  <div id="time2"></div>
+
+
+  <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      // var tag = document.createElement('script');
+
+      // tag.src = "https://www.youtube.com/iframe_api";
+      // var firstScriptTag = document.getElementsByTagName('script')[0];
+      // firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      // var player2;
+      // function onYouTubeIframeAPIReady2() {
+      //   player2 = new YT.Player('player2', {
+      //     height: '0',
+      //     width: '0',
+      //     videoId: 'zloMeuJjjGg',
+      //     events: {
+      //       'onReady': onPlayerReady2,
+      //       'onStateChange': onPlayerStateChange2
+      //     }
+      //   });
+      // }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady2(event) {
+        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done2 = false;
+      function onPlayerStateChange2(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done2) {
+          var state2 = player2.getPlayerState();
+          done2 = true;
+        }
+        if(state2 == 1){
+          var current_volume2 = player2.getVolume();
+          // Volume Slider
+          $(function() {
+            $( "#slider_vertical2" ).slider({
+              orientation: "vertical",
+              range: "min",
+              min: 0,
+              max: 100,
+              value: 50,
+              slide: function( event, ui ) {
+                $( "#volume2" ).val( ui.value );
+                player2.setVolume(ui.value);
+              }
+            });
+          });
+          $('#slider_vertical2').find(".ui-slider-range").css('height', current_volume2+'%');
+          // call the function every 250 milisecond.
+          setInterval(displTime2,250);  // PUT THIS STATEMENT JUST AFTER THE PLAYER HAS BEEN CREATED. 
+        }
+      }
+
+      
+      function displTime2() {
+        
+        var mind2 = player2.getCurrentTime();   // returns elapsed time in seconds 
+        var m2 = Math.floor(mind2 / 60);
+        var secd2 = mind2 % 60;
+        var s2 = Math.ceil(secd2)
+
+        var dur2 = player2.getDuration();       // returns duration time in seconds
+
+        var dm2 = Math.floor(dur2 / 60);
+        var dsecd2 = dur2 % 60;
+        var ds2 = Math.ceil(dsecd2)
+
+        var playbackPercent2 = mind2/dur2;
+        var sliderValue2 = playbackPercent2 * 100;
+        var state2 = player2.getPlayerState();
+
+        var getVolume2 = player2.getVolume();
+
+        $("#time2").html("Current: " + m2 + ":" + n2(s2) + " | Duration: " + dm2 + ":" + n2(ds2) + " | PlayerState: " + state2 + " | Volume: " + getVolume2 + " | Slider Value: " + sliderValue2);  // Using the JQUERY library to write to body
+        $( "#slider_timeline2" ).slider({ 
+          range: "min",
+          min:0,
+          value: sliderValue2 });
+        
+        
+        // adds a 0 to the seconds when the time is less than 9 seconds
+        function n2(n){
+          return n > 9 ? "" + n: "0" + n;
+        }
+
+        // set player value
+        if(state2 == 1){
+          $("#player2_control_button").removeClass('ui-icon-play').addClass('ui-icon-pause').click(function(){player2.pauseVideo();});
+        }else if(state2 == 2){
+          $("#player2_control_button").removeClass('ui-icon-pause').addClass('ui-icon-play').click(function(){player2.playVideo();});
+        }else if(state2 == 0){
+          $("#player2_control_button").removeClass('ui-icon-pause').addClass('ui-icon-arrowrefresh-1-e').click(function(){player2.playVideo();});
+        }else{
+          var donothing;
+        }
+
+        // set play mute icons
+        if(getVolume2 != 0){
+          $('#player2_mute_button').removeClass('ui-icon-volume-off').addClass('ui-icon-volume-on').click(function(){player2.mute();});
+        }else{
+          $('#player2_mute_button').removeClass('ui-icon-volume-on').addClass('ui-icon-volume-off').click(function(){player2.unMute();});
+        }
+      }
+      
+      
+      
+    </script>
+</body>
+</html>
